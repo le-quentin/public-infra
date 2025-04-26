@@ -1,0 +1,6 @@
+./venv
+*.swp
+*.log
+**/.vagrant/**
+**/.terraform/**
+**/.ansible/**
