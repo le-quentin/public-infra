@@ -39,6 +39,14 @@
       loop: "{{ users }}"
       notify: Restart sshd
 
+    - name: Allow ansible user to sudo without password
+      copy:
+        dest: /etc/sudoers.d/ansible
+        content: "ansible ALL=(ALL) NOPASSWD:ALL\n"
+        owner: root
+        group: root
+        mode: '0440'
+
   handlers:
     - name: Restart sshd
       service:

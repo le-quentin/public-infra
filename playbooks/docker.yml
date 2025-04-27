@@ -1,0 +1,23 @@
+- name: Install and configure Docker
+  hosts: all
+  become: true
+  vars:
+    docker_users:
+      - quentin
+      - caro
+
+  tasks:
+    - name: Ensure docker is installed
+      ansible.builtin.include_tasks: "tasks/install-docker.yaml"
+
+    - name: Create docker group if it does not exist
+      group:
+        name: docker
+        state: present
+
+    - name: Add users to docker group (sudoless docker)
+      user:
+        name: "{{ item }}"
+        groups: docker
+        append: yes
+      loop: "{{ docker_users }}"
