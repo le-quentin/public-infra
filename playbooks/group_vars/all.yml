@@ -5,3 +5,13 @@ alt_arch_names:
   x86_64: amd64
   aarch64: arm64
 ansible_architecture_alt: "{{ alt_arch_names[ansible_architecture] | default(ansible_architecture) }}"
+
+home_dir: /home/{{ hostvars.mainhost.ansible_user }}
+ansible_files_root: /srv
+caro_files_root: /srv/caro
+quentin_files_root: /srv/quentin
+common_files_root: /srv/common
+
+docker_public_network: public-proxy
+
+ansible_shell_allow_world_readable_temp: true

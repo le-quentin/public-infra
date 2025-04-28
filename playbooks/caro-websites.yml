@@ -1,0 +1,98 @@
+- name: Deploy Caro websites
+  hosts: main
+  vars:
+    websites_root_folder: /srv/caro/websites
+
+  tasks:
+    - name: Ensure public network exists
+      become: true
+      community.docker.docker_network:
+        name: "{{ docker_public_network }}"
+        state: present
+
+    - name: Ensure /srv directory exists
+      become: true
+      file:
+        path: /srv
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Ensure /srv/caro directories exists
+      become: true
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: caro
+        group: caro
+      loop:
+        - /srv/caro
+        - "{{ websites_root_folder }}"
+        - "{{ websites_root_folder }}/nginx"
+        - "{{ websites_root_folder }}/nginx/vhosts"
+
+    - name: Find vhost templates locally
+      local_action:
+        module: find
+        paths: "resources/caro/websites/vhosts"
+        patterns: "*.conf.j2"
+      register: vhost_templates
+    - name: Deduce DNS names
+      ansible.builtin.set_fact:
+        dns_names: >-
+          {{
+              vhost_templates.files
+                | map(attribute='path')
+                | map('basename')
+                | map('regex_replace', '\.conf\.j2$', '')
+                | list
+          }}
+    - name: Set websites fact
+      ansible.builtin.set_fact:
+        websites: >-
+          {{ (websites | default([])) + [{
+            'dns_name': item,
+            'name': item | regex_replace('\.', '-')
+          }] }}
+      with_items: "{{ dns_names }}"
+
+    - name: Deploy vhost nginx configurations
+      become: true
+      become_user: caro
+      template:
+        src: "resources/caro/websites/vhosts/{{ item.dns_name }}.conf.j2"
+        dest: "{{ websites_root_folder }}/nginx/vhosts/{{ item.dns_name }}.conf"
+        mode: '0644'
+      loop: "{{ websites }}"
+      notify: Validate and reload nginx
+
+    - name: Deploy main nginx configuration
+      become: true
+      become_user: caro
+      template:
+        src: "resources/caro/websites/nginx.conf.j2"
+        dest: "{{ websites_root_folder }}/nginx/nginx.conf"
+        mode: '0644'
+      notify: Validate and reload nginx
+
+    - name: Deploy docker-compose.yml for webserver
+      become: true
+      become_user: caro
+      template:
+        src: "resources/caro/websites/compose.yml.j2"
+        dest: "{{ websites_root_folder }}/compose.yml"
+        mode: '0644'
+
+    - name: Start services with docker compose
+      become_user: caro
+      community.docker.docker_compose_v2:
+        project_src: "{{ websites_root_folder }}"
+        state: present
+
+  handlers:
+    - name: Validate and reload nginx
+      become_user: caro
+      ansible.builtin.shell: docker exec caro-websites nginx -s reload
+

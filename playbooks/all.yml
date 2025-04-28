@@ -1,0 +1,8 @@
+- name: Setup users 
+  import_playbook: ./users.yml
+- name: Install docker
+  import_playbook: ./docker.yml
+- name: Deploy caro websites
+  import_playbook: ./caro-websites.yml
+- name: Deploy public proxy (Caddy)
+  import_playbook: ./public-proxy.yml

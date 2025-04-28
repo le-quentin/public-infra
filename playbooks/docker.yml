@@ -3,6 +3,7 @@
   become: true
   vars:
     docker_users:
+      - ansible
       - quentin
       - caro
 

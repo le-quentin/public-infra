@@ -1,0 +1,19 @@
+services:
+  caddy:
+    image: caddy:2.10.0-alpine
+    container_name: public-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - {{ public_proxy_root }}/Caddyfile:/etc/caddy/Caddyfile:ro
+      - {{ public_proxy_root }}/data:/data
+      - {{ public_proxy_root }}/config:/config
+    networks:
+      - {{ docker_public_network }}
+
+networks:
+  {{ docker_public_network }}:
+    external: true
+

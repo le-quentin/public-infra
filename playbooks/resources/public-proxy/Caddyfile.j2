@@ -1,0 +1,5 @@
+{% set http_prefix = 'http://' if staging else '' %}
+{{ http_prefix }}{{ quentin_bonnet_software_dns_name }} {
+    reverse_proxy caro-websites:80
+}
+
