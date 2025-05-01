@@ -31,5 +31,7 @@
     state: present
 
 - name: "[{{ website.dns_name }}] Fix ownership of mounted folder"
+  become: true
+  become_user: "{{ website.owner }}"
   command: docker exec {{ website.container_name }} chown -R application:application /app
   changed_when: false

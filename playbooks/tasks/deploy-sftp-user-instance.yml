@@ -43,7 +43,9 @@
     state: present
 
 - name: "[{{ sftp_user.name }}] Fix ownership of mounted volumes inside container"
-  ansible.builtin.shell: |
+  become: true
+  become_user: "{{ sftp_user.name }}"
+  ansible.builtin.command: |
     docker exec sftp-{{ sftp_user.name }} chown -R {{ sftp_user.uid }}:{{ sftp_user.gid }} /home/{{ sftp_user.name }}/{{ item.volume_name }}
   loop: "{{ sftp_user.websites }}"
   changed_when: false

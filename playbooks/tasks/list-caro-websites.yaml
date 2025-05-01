@@ -1,27 +1,30 @@
 ---
-- name: Find nginx config templates locally
-  delegate_to: localhost
-  find:
-    paths: "resources/caro/websites/nginx"
-    patterns: "*.conf.j2"
-  register: vhost_templates
-- name: Deduce DNS names
-  ansible.builtin.set_fact:
-    dns_names: >-
-      {{
-          vhost_templates.files
-            | map(attribute='path')
-            | map('basename')
-            | map('regex_replace', '\.conf\.j2$', '')
-            | list
-      }}
-- name: Set websites fact
-  ansible.builtin.set_fact:
-    caro_websites: >-
-      {{ (caro_websites | default([])) + [{
-        'owner': 'caro',
-        'dns_name': item,
-        'container_name': item | regex_replace('\.', '-'),
-        'volume_name': item | regex_replace('\.', '-')
-      }] }}
-  with_items: "{{ dns_names }}"
+- name: Set caro_websites fact if needed
+  when: caro_websites is not defined
+  block:
+    - name: Find nginx config templates locally
+      delegate_to: localhost
+      find:
+        paths: "resources/caro/websites/nginx"
+        patterns: "*.conf.j2"
+      register: vhost_templates
+    - name: Deduce DNS names
+      ansible.builtin.set_fact:
+        dns_names: >-
+          {{
+              vhost_templates.files
+                | map(attribute='path')
+                | map('basename')
+                | map('regex_replace', '\.conf\.j2$', '')
+                | list
+          }}
+    - name: Set websites fact
+      ansible.builtin.set_fact:
+        caro_websites: >-
+          {{ (caro_websites | default([])) + [{
+            'owner': 'caro',
+            'dns_name': item,
+            'container_name': item | regex_replace('\.', '-'),
+            'volume_name': item | regex_replace('\.', '-')
+          }] }}
+      with_items: "{{ dns_names }}"
