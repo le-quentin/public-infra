@@ -1,22 +1,16 @@
 services:
   nginx-webserver:
     image: "webdevops/php-nginx:8.2-alpine"
-    container_name: caro-websites
+    container_name: {{ website.container_name }}
     restart: always
     networks:
-      - "{{ docker_public_network }}"
+      - {{ docker_public_network }}
     volumes:
-{% for site in caro_websites %}
-      - {{ site.volume_name }}:/app/{{ site.name }}
-{% endfor %}
-      # - {{ websites_root_folder }}/nginx/nginx.conf:/opt/docker/etc/nginx/nginx.conf:ro
-      - {{ websites_root_folder }}/nginx/vhosts:/opt/docker/etc/nginx/vhosts:ro
+      - {{ website.volume_name }}:/app
 
 volumes:
-{% for site in caro_websites %}
-  {{ site.volume_name }}:
-    name: {{ site.volume_name }}
-{% endfor %}
+  {{ website.volume_name }}:
+    name: {{ website.volume_name }}
 
 networks:
   {{ docker_public_network }}:

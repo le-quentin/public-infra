@@ -1,8 +1,8 @@
 ---
-- name: Find vhost templates locally
+- name: Find nginx config templates locally
   delegate_to: localhost
   find:
-    paths: "resources/caro/websites/vhosts"
+    paths: "resources/caro/websites/nginx"
     patterns: "*.conf.j2"
   register: vhost_templates
 - name: Deduce DNS names
@@ -18,9 +18,10 @@
 - name: Set websites fact
   ansible.builtin.set_fact:
     caro_websites: >-
-      {{ (websites | default([])) + [{
+      {{ (caro_websites | default([])) + [{
+        'owner': 'caro',
         'dns_name': item,
-        'name': item | regex_replace('\.', '-'),
-        'volume_name': 'caro-websites-' ~ (item | regex_replace('\.', '-'))
+        'container_name': item | regex_replace('\.', '-'),
+        'volume_name': item | regex_replace('\.', '-')
       }] }}
   with_items: "{{ dns_names }}"

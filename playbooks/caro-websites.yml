@@ -24,46 +24,12 @@
       loop:
         - "{{ websites_root_folder }}"
         - "{{ websites_root_folder }}/nginx"
-        - "{{ websites_root_folder }}/nginx/vhosts"
 
     - name: List Caro websites
       include_tasks: ./tasks/list-caro-websites.yaml
 
-    - name: Deploy vhost nginx configurations
-      become: true
-      become_user: caro
-      template:
-        src: "resources/caro/websites/vhosts/{{ item.dns_name }}.conf.j2"
-        dest: "{{ websites_root_folder }}/nginx/vhosts/{{ item.dns_name }}.conf"
-        mode: '0644'
+    - name: Deploy websites
+      include_tasks: ./tasks/deploy-php-nginx-website.yml
       loop: "{{ caro_websites }}"
-      notify: Validate and reload nginx
-
-    - name: Deploy main nginx configuration
-      become: true
-      become_user: caro
-      template:
-        src: "resources/caro/websites/nginx.conf.j2"
-        dest: "{{ websites_root_folder }}/nginx/nginx.conf"
-        mode: '0644'
-      notify: Validate and reload nginx
-
-    - name: Deploy compose.yml for webserver
-      become: true
-      become_user: caro
-      template:
-        src: "resources/caro/websites/compose.yml.j2"
-        dest: "{{ websites_root_folder }}/compose.yml"
-        mode: '0644'
-
-    - name: Start services with docker compose
-      become: true
-      become_user: caro
-      community.docker.docker_compose_v2:
-        project_src: "{{ websites_root_folder }}"
-        state: present
-
-  handlers:
-    - name: Validate and reload nginx
-      become_user: caro
-      ansible.builtin.shell: docker exec caro-websites nginx -s reload
+      loop_control: 
+        loop_var: website

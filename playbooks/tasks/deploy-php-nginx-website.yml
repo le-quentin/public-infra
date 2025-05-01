@@ -1,0 +1,35 @@
+- name: "[{{ website.dns_name }}] Ensure website directory exists"
+  become: true
+  file:
+    path: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ website.owner }}"
+    group: "{{ website.owner }}"
+
+- name: "[{{ website.dns_name }}] Deploy nginx configuration"
+  become: true
+  become_user: "{{ website.owner }}"
+  template:
+    src: "resources/{{ website.owner }}/websites/nginx/{{ website.dns_name }}.conf.j2"
+    dest: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}/nginx.conf"
+    mode: '0644'
+
+- name: "[{{ website.dns_name }}] Deploy compose.yml"
+  become: true
+  become_user: "{{ website.owner }}"
+  template:
+    src: "resources/{{ website.owner }}/websites/compose.yml.j2"
+    dest: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}/compose.yml"
+    mode: '0644'
+
+- name: "[{{ website.dns_name }}] Start services with docker compose"
+  become: true
+  become_user: "{{ website.owner }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}"
+    state: present
+
+- name: "[{{ website.dns_name }}] Fix ownership of mounted folder"
+  command: docker exec {{ website.container_name }} chown -R application:application /app
+  changed_when: false
