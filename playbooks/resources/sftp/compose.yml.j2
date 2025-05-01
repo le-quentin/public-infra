@@ -1,0 +1,22 @@
+services:
+  sftp:
+    image: atmoz/sftp:alpine
+    container_name: sftp-{{ sftp_user.name }}
+    restart: always
+    ports:
+      - "{{ sftp_user.port }}:22"
+    volumes:
+      - {{ sftp_user.root_folder }}/.ssh/authorized_keys:/home/{{ sftp_user.name }}/.ssh/authorized_keys:ro
+      - sftp-{{ sftp_user.name }}-ssh-conf:/etc/ssh # This keeps host key and avoid warning everytime container is redeployed
+{% for website in sftp_user.websites %}
+      - {{ website.volume_name }}:/home/{{ sftp_user.name }}/{{ website.volume_name }}:rw
+{% endfor %}
+    command: "{{ sftp_user.name }}:{{ sftp_user.uid }}:{{ sftp_user.gid }}"
+
+volumes:
+{% for website in sftp_user.websites %}
+  {{ website.volume_name }}:
+    external: true
+{% endfor %}
+  sftp-{{ sftp_user.name }}-ssh-conf:
+    name: sftp-{{ sftp_user.name }}-ssh-conf

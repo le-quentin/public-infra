@@ -1,7 +1,7 @@
 server {
     listen       80;
     server_name  {{ quentin_bonnet_software_dns_name }};
-    root         /app;
+    root         /app/bonnet-software;
     index        index.php index.html index.htm;
 
     # Prevent directory listing
@@ -47,7 +47,8 @@ server {
     # PHP handling (already configured in base image, but we'll be explicit)
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php-fpm.sock;  # webdevops uses unix socket
+        # fastcgi_pass unix:/var/run/php-fpm.sock;  # webdevops uses unix socket
+        fastcgi_pass 127.0.0.1:9000; # webdevops uses tcp socket apparently
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;

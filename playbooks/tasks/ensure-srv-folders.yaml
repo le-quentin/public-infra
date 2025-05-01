@@ -1,0 +1,26 @@
+- name: Ensure /srv directory exists
+  become: true
+  file:
+    path: /srv
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Ensure /srv/caro directory exists
+  become: true
+  file:
+    path: /srv/caro
+    state: directory
+    mode: '0755'
+    owner: caro
+    group: caro
+
+- name: Ensure /srv/quentin directory exists
+  become: true
+  file:
+    path: /srv/quentin
+    state: directory
+    mode: '0755'
+    owner: quentin
+    group: quentin

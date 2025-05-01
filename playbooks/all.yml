@@ -4,5 +4,7 @@
   import_playbook: ./docker.yml
 - name: Deploy caro websites
   import_playbook: ./caro-websites.yml
+- name: Deploy users sftp instances
+  import_playbook: ./sftp.yml
 - name: Deploy public proxy (Caddy)
   import_playbook: ./public-proxy.yml

@@ -1,0 +1,37 @@
+- name: Deploy per-user SFTP containers
+  hosts: main
+  vars:
+    sftp_users:
+
+  tasks:
+    - name: List Caro websites
+      include_tasks: ./tasks/list-caro-websites.yaml
+    - name: Set sftp_users fact
+      set_fact: 
+        sftp_users: >-
+          {{[
+            {
+              'name': 'caro',
+              'uid': 1001,
+              'gid': 1001,
+              'port': 2222,
+              'root_folder': '/srv/caro/sftp',
+              'websites': caro_websites
+            },
+            { 
+              'name': 'quentin',
+              'uid': 1002,
+              'gid': 1002,
+              'port': 2223,
+              'root_folder': '/srv/quentin/sftp',
+              'websites': caro_websites
+                          | selectattr('name', 'match', '.*bonnet.*software.*')
+                          | list
+            }
+          ]}}
+
+    - name: Deploy SFTP containers
+      loop: "{{ sftp_users }}"
+      loop_control:
+        loop_var: sftp_user
+      include_tasks: ./tasks/deploy-sftp-user-instance.yml

@@ -1,0 +1,49 @@
+- name: Ensure srv folders
+  include_tasks: ./tasks/ensure-srv-folders.yaml
+
+- name: "[{{ sftp_user.name }}] Ensure SFTP root directory exists"
+  become: true
+  become_user: "{{ sftp_user.name }}"
+  file:
+    path: "{{ sftp_user.root_folder }}"
+    state: directory
+    mode: '0755'
+
+- name: "[{{ sftp_user.name }}] Ensure .ssh directory exists for user"
+  become: true
+  file:
+    path: "{{ sftp_user.root_folder }}/.ssh"
+    state: directory
+    owner: "{{ sftp_user.uid }}"
+    group: "{{ sftp_user.gid }}"
+    mode: '0700'
+
+- name: "[{{ sftp_user.name }}] Copy SSH key for user"
+  become: true
+  copy:
+    src: "resources/keys/{{ sftp_user.name }}.pub"
+    dest: "{{ sftp_user.root_folder }}/.ssh/authorized_keys"
+    owner: "{{ sftp_user.uid }}"
+    group: "{{ sftp_user.gid }}"
+    mode: '0600'
+
+- name: "[{{ sftp_user.name }}] Generate compose file"
+  become: true
+  become_user: "{{ sftp_user.name }}"
+  template:
+    src: "resources/sftp/compose.yml.j2"
+    dest: "{{ sftp_user.root_folder }}/compose.yml"
+    mode: '0600'
+
+- name: "[{{ sftp_user.name }}] Start SFTP service"
+  become: true
+  become_user: "{{ sftp_user.name }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ sftp_user.root_folder }}"
+    state: present
+
+- name: "[{{ sftp_user.name }}] Fix ownership of mounted volumes inside container"
+  ansible.builtin.shell: |
+    docker exec sftp-{{ sftp_user.name }} chown -R {{ sftp_user.uid }}:{{ sftp_user.gid }} /home/{{ sftp_user.name }}/{{ item.volume_name }}
+  loop: "{{ sftp_user.websites }}"
+  changed_when: false
