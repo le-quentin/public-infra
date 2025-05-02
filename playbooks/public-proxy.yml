@@ -1,4 +1,5 @@
 - name: Deploy public Caddy reverse proxy
+  become_user: ansible
   hosts: main
   vars:
     public_proxy_root: /srv/public-proxy

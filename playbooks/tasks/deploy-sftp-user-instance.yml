@@ -42,6 +42,7 @@
     project_src: "{{ sftp_user.root_folder }}"
     state: present
 
+# atmoz/sftp cannot be run with another user than root so we need to do this afterwards
 - name: "[{{ sftp_user.name }}] Fix ownership of mounted volumes inside container"
   become: true
   become_user: "{{ sftp_user.name }}"

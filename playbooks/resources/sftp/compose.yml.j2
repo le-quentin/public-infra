@@ -11,7 +11,7 @@ services:
 {% for website in sftp_user.websites %}
       - {{ website.volume_name }}:/home/{{ sftp_user.name }}/{{ website.volume_name }}:rw
 {% endfor %}
-    command: "{{ sftp_user.name }}:{{ sftp_user.uid }}:{{ sftp_user.gid }}"
+    command: "{{ sftp_user.name }}::{{ sftp_user.uid }}:{{ sftp_user.gid }}"
 
 volumes:
 {% for website in sftp_user.websites %}

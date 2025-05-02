@@ -12,16 +12,16 @@
           {{[
             {
               'name': 'caro',
-              'uid': 1001,
-              'gid': 1001,
+              'uid': 2000,
+              'gid': 2000,
               'port': 2222,
               'root_folder': '/srv/caro/sftp',
               'websites': caro_websites
             },
             { 
               'name': 'quentin',
-              'uid': 1002,
-              'gid': 1002,
+              'uid': 2000,
+              'gid': 2000,
               'port': 2223,
               'root_folder': '/srv/quentin/sftp',
               'websites': caro_websites
