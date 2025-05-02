@@ -8,6 +8,7 @@ services:
       - {{ docker_public_network }}
     volumes:
       - {{ website.volume_name }}:/app
+      - {{ websites_root_folder }}/nginx/{{ website.dns_name }}/nginx.conf:/opt/docker/etc/nginx/vhost.common.d/99-website.conf
 
 volumes:
   {{ website.volume_name }}:
