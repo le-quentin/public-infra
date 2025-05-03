@@ -11,6 +11,11 @@
         ssh_key: "{{ lookup('file', 'resources/keys/caro.pub') }}"
       - name: ansible
         ssh_key: "{{ lookup('file', 'resources/keys/ansible.pub') }}"
+      - name: admin
+        ssh_key: "{{ lookup('file', 'resources/keys/admin.pub') }}"
+    sudo_users:
+      - ansible
+      - admin
 
   tasks:
     - name: Ensure users exist
@@ -39,13 +44,14 @@
       loop: "{{ users }}"
       notify: Restart sshd
 
-    - name: Allow ansible user to sudo without password
+    - name: "Allow {{ item }} user to sudo without password"
       copy:
-        dest: /etc/sudoers.d/ansible
-        content: "ansible ALL=(ALL) NOPASSWD:ALL\n"
+        dest: "/etc/sudoers.d/{{ item }}"
+        content: "{{ item }} ALL=(ALL) NOPASSWD:ALL\n"
         owner: root
         group: root
         mode: '0440'
+      loop: "{{ sudo_users }}"
 
   handlers:
     - name: Restart sshd
