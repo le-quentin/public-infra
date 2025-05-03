@@ -15,7 +15,7 @@
               'uid': 2000,
               'gid': 2000,
               'port': 2222,
-              'root_folder': '/srv/caro/sftp',
+              'root_folder': '/srv/caro/sftp-caro',
               'websites': caro_websites
             },
             { 
@@ -23,7 +23,7 @@
               'uid': 2000,
               'gid': 2000,
               'port': 2223,
-              'root_folder': '/srv/quentin/sftp',
+              'root_folder': '/srv/quentin/sftp-quentin',
               'websites': caro_websites
                           | selectattr('dns_name', 'match', 'bonnet.software')
                           | list
