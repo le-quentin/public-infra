@@ -3,7 +3,7 @@
   file:
     path: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}"
     state: directory
-    mode: '0755'
+    mode: "{{ user_dirs_permissions }}"
     owner: "{{ website.owner }}"
     group: "{{ website.owner }}"
 
@@ -13,7 +13,7 @@
   template:
     src: "resources/{{ website.owner }}/websites/nginx/{{ website.dns_name }}.conf.j2"
     dest: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}/nginx.conf"
-    mode: '0644'
+    mode: "{{ user_files_permissions }}"
 
 - name: "[{{ website.dns_name }}] Deploy compose.yml"
   become: true
@@ -21,7 +21,7 @@
   template:
     src: "resources/{{ website.owner }}/websites/compose.yml.j2"
     dest: "{{ websites_root_folder }}/nginx/{{ website.dns_name }}/compose.yml"
-    mode: '0644'
+    mode: "{{ user_files_permissions }}"
 
 - name: "[{{ website.dns_name }}] Start services with docker compose"
   become: true

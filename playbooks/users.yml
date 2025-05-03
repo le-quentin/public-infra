@@ -53,6 +53,13 @@
         mode: '0440'
       loop: "{{ sudo_users }}"
 
+    - name: "Make admin a part of caro and quentin group, so that it can manage both users resources"
+      user:
+        name: admin
+        state: present
+        groups: caro,quentin
+        shell: /bin/bash
+
   handlers:
     - name: Restart sshd
       service:

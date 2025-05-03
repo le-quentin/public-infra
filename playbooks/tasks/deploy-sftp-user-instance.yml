@@ -7,7 +7,7 @@
   file:
     path: "{{ sftp_user.root_folder }}"
     state: directory
-    mode: '0755'
+    mode: "{{ user_dirs_permissions }}"
 
 - name: "[{{ sftp_user.name }}] Ensure .ssh directory exists for user"
   become: true
@@ -16,7 +16,7 @@
     state: directory
     owner: "{{ sftp_user.uid }}"
     group: "{{ sftp_user.gid }}"
-    mode: '0700'
+    mode: "{{ user_dirs_permissions }}"
 
 - name: "[{{ sftp_user.name }}] Copy SSH key for user"
   become: true
@@ -25,7 +25,7 @@
     dest: "{{ sftp_user.root_folder }}/.ssh/authorized_keys"
     owner: "{{ sftp_user.uid }}"
     group: "{{ sftp_user.gid }}"
-    mode: '0600'
+    mode: "{{ user_files_permissions }}"
 
 - name: "[{{ sftp_user.name }}] Generate compose file"
   become: true
@@ -33,7 +33,7 @@
   template:
     src: "resources/sftp/compose.yml.j2"
     dest: "{{ sftp_user.root_folder }}/compose.yml"
-    mode: '0600'
+    mode: "{{ user_files_permissions }}"
 
 - name: "[{{ sftp_user.name }}] Start SFTP service"
   become: true

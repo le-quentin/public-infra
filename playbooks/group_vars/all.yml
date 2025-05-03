@@ -8,6 +8,8 @@ ansible_architecture_alt: "{{ alt_arch_names[ansible_architecture] | default(ans
 
 home_dir: /home/{{ hostvars.mainhost.ansible_user }}
 ansible_files_root: /srv
+user_dirs_permissions: "0770"
+user_files_permissions: "0660"
 caro_files_root: /srv/caro
 quentin_files_root: /srv/quentin
 common_files_root: /srv/common

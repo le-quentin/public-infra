@@ -4,6 +4,7 @@
   vars:
     docker_users:
       - ansible
+      - admin
       - quentin
       - caro
 

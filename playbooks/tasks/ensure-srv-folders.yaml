@@ -4,15 +4,15 @@
     path: /srv
     state: directory
     mode: '0755'
-    owner: root
-    group: root
+    owner: admin
+    group: admin
 
 - name: Ensure /srv/caro directory exists
   become: true
   file:
     path: /srv/caro
     state: directory
-    mode: '0755'
+    mode: "{{ user_dirs_permissions }}"
     owner: caro
     group: caro
 
@@ -21,6 +21,6 @@
   file:
     path: /srv/quentin
     state: directory
-    mode: '0755'
+    mode: "{{ user_dirs_permissions }}"
     owner: quentin
     group: quentin
