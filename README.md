@@ -10,6 +10,6 @@ Currently runs only my freelancer commercial website, but will run more stuff in
 
 # TODO
 
-- [ ] SFTP to fill websites docker volumes
+- [x] SFTP to fill websites docker volumes
 - [ ] try Cockpit for base web-ui admin
 - [ ] If Hostinger automatic backups aren't satisfying, docker volumes backups with rclone

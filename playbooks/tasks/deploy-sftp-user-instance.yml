@@ -16,7 +16,7 @@
     state: directory
     owner: "{{ sftp_user.uid }}"
     group: "{{ sftp_user.gid }}"
-    mode: "{{ user_dirs_permissions }}"
+    mode: "0700" # SSH has strict permissions checking
 
 - name: "[{{ sftp_user.name }}] Copy SSH key for user"
   become: true
@@ -25,7 +25,7 @@
     dest: "{{ sftp_user.root_folder }}/.ssh/authorized_keys"
     owner: "{{ sftp_user.uid }}"
     group: "{{ sftp_user.gid }}"
-    mode: "{{ user_files_permissions }}"
+    mode: "0600" # SSH has strict permissions checking
 
 - name: "[{{ sftp_user.name }}] Generate compose file"
   become: true

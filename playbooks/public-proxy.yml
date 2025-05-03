@@ -1,5 +1,4 @@
 - name: Deploy public Caddy reverse proxy
-  become_user: ansible
   hosts: main
   vars:
     public_proxy_root: /srv/public-proxy
@@ -10,35 +9,45 @@
       file:
         path: "{{ item }}"
         state: directory
-        mode: '0755'
-        owner: ansible
-        group: ansible
+        mode: "{{ user_dirs_permissions }}"
+        owner: admin
+        group: shared
       loop:
         - "{{ public_proxy_root }}"
         - "{{ public_proxy_root }}/config"
         - "{{ public_proxy_root }}/data"
 
     - name: Deploy Caddyfile
+      become: true
       template:
         src: "resources/public-proxy/Caddyfile.j2"
         dest: "{{ public_proxy_root }}/Caddyfile"
-        mode: '0644'
+        mode: "{{ user_files_permissions }}"
+        owner: admin
+        group: shared
       notify: Restart caddy
 
     - name: Deploy compose.yml for Caddy
+      become: true
       template:
         src: "resources/public-proxy/compose.yml.j2"
         dest: "{{ public_proxy_root }}/compose.yml"
-        mode: '0644'
+        mode: "{{ user_files_permissions }}"
+        owner: admin
+        group: shared
       notify: Restart caddy
 
     - name: Start services with docker compose
+      become: true
+      become_user: admin
       community.docker.docker_compose_v2:
         project_src: "{{ public_proxy_root }}"
         state: present
 
   handlers:
     - name: Restart caddy
+      become: true
+      become_user: admin
       community.docker.docker_compose_v2:
         project_src: "{{ public_proxy_root }}"
         state: restarted
