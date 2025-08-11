@@ -1,0 +1,23 @@
+services:
+  ghost:
+    image: ghost:6.0.0-alpine
+    container_name: ghost
+    restart: always
+    environment:
+      database__client: sqlite3
+      database__connection__filename: content/data/ghost.db
+      url: {{ ghost_url }}
+{% if staging %}
+      NODE_ENV: development
+{% endif %}
+    volumes:
+      - ghost-content:/var/lib/ghost/content
+    networks:
+      - public-proxy
+
+volumes:
+  ghost-content:
+networks:
+  public-proxy:
+    external: true
+

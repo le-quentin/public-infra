@@ -1,0 +1,48 @@
+- name: Deploy Ghost
+  hosts: main
+  vars:
+    ghost_root_folder: /srv/caro/ghost
+  tasks:
+    - name: Ensure public network exists
+      become: true
+      community.docker.docker_network:
+        name: "{{ docker_public_network }}"
+        state: present
+
+    - name: Ensure srv folders
+      include_tasks: ./tasks/ensure-srv-folders.yaml
+
+    - name: Ensure directories exists
+      become: true
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "{{ user_dirs_permissions }}"
+        owner: caro
+        group: caro
+      loop:
+        - "{{ ghost_root_folder }}"
+
+    - name: Render docker compose template
+      become: true
+      become_user: caro
+      notify: Restart the app
+      ansible.builtin.template:
+        src: ./resources/caro/ghost/compose.yml.j2
+        dest: "{{ ghost_root_folder }}/compose.yml"
+        mode: "{{ user_files_permissions }}"
+
+    - name: Start the app
+      become: true
+      become_user: caro
+      community.docker.docker_compose_v2:
+        project_src: "{{ ghost_root_folder }}"
+        state: present
+
+  handlers:
+    - name: Restart the app
+      become: true
+      become_user: caro
+      community.docker.docker_compose_v2:
+        project_src: "{{ ghost_root_folder }}"
+        state: restarted
