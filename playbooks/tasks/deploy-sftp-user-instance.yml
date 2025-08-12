@@ -19,6 +19,7 @@
     mode: "0700" # SSH has strict permissions checking
 
 - name: "[{{ sftp_user.name }}] Copy SSH key for user"
+  register: ssh_key
   become: true
   copy:
     src: "resources/keys/{{ sftp_user.name }}.pub"
@@ -28,6 +29,7 @@
     mode: "0600" # SSH has strict permissions checking
 
 - name: "[{{ sftp_user.name }}] Generate compose file"
+  register: compose_file
   become: true
   become_user: "{{ sftp_user.name }}"
   template:
@@ -36,11 +38,20 @@
     mode: "{{ user_files_permissions }}"
 
 - name: "[{{ sftp_user.name }}] Start SFTP service"
+  register: started
   become: true
   become_user: "{{ sftp_user.name }}"
   community.docker.docker_compose_v2:
     project_src: "{{ sftp_user.root_folder }}"
     state: present
+
+- name: "[{{ sftp_user.name }}] Restart SFTP service"
+  when: (ssh_key.changed or compose_file.changed) and not started.changed
+  become: true
+  become_user: "{{ sftp_user.name }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ sftp_user.root_folder }}"
+    state: restarted
 
 # atmoz/sftp cannot be run with another user than root so we need to do this afterwards
 - name: "[{{ sftp_user.name }}] Fix ownership of mounted volumes inside container"

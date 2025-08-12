@@ -61,11 +61,13 @@
       user:
         name: admin
         state: present
+        append: true
         groups: caro,quentin,shared
     - name: "Make {{ item }} part of shared group"
       user:
         name: "{{ item }}"
         groups: shared
+        append: true
         state: present
       loop:
         - caro
