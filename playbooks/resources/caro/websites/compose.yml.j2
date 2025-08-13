@@ -3,7 +3,6 @@ services:
     image: "webdevops/php-nginx:8.2-alpine"
     container_name: {{ website.container_name }}
     restart: always
-    user: 2000:2000
     networks:
       - {{ docker_public_network }}
     volumes:
