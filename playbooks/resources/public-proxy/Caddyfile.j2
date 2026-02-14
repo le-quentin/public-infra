@@ -1,8 +1,21 @@
+{% if staging %}
+{
+    local_certs
+}
+
+{% endif %}
 {% set http_prefix = 'http://' if staging else '' %}
 {{ http_prefix }}{{ quentin_bonnet_software_dns_name }} {
     reverse_proxy bonnet-software:80
 }
 
 {{ ghost_url }} {
-    reverse_proxy ghost:2368
+{% if staging %}
+    tls internal
+{% endif %}
+    reverse_proxy ghost:2368 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        header_up X-Forwarded-For {remote}
+    }
 }

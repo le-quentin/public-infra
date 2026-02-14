@@ -1,23 +1,29 @@
 services:
   ghost:
-    image: ghost:6.0.0-alpine
+    image: ghost:6.18.2-alpine
     container_name: ghost
     restart: always
     environment:
       database__client: sqlite3
       database__connection__filename: content/data/ghost.db
+      security__staffDeviceVerification: false # Temporarily disable this security which prevents us from logging in. Can probably be enabled when transactional email is properly setup
       url: {{ ghost_url }}
+      mail__transport: SMTP
+      mail__options__host: {{ ghost_smtp_host }}
+      mail__options__port: {{ ghost_smtp_port }}
+      mail__options__auth__user: {{ ghost_smtp_user }}
+      mail__options__auth__pass: {{ ghost_smtp_pass }}
+      mail__from: {{ ghost_smtp_mail_from }}
 {% if staging %}
       NODE_ENV: development
 {% endif %}
     volumes:
-      - ghost-content:/var/lib/ghost/content
+      - content:/var/lib/ghost/content
     networks:
       - public-proxy
 
 volumes:
-  ghost-content:
+  content:
 networks:
   public-proxy:
     external: true
-
